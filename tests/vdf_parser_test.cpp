@@ -178,6 +178,31 @@ TEST_CASE_TEMPLATE("Write and Read", charT, char, wchar_t)
     CHECK(secondNode->attribs.at(T_L("Key")) == T_L("Value"));
 }
 
+TEST_CASE_TEMPLATE("Write and Read Case Insensitive", charT, char, wchar_t)
+{
+    std::basic_string<charT> attribs(
+        T_L("\"firstNode\"{\"SecondNode\"{\"Key\" \"Value\" //myComment\n}}"));
+    bool ok;
+    auto obj = vdf::read(attribs.begin(), attribs.end(), &ok);
+
+    REQUIRE(ok);
+
+    std::basic_stringstream<charT> output;
+    vdf::write(output, obj);
+    obj = vdf::read(output);
+
+    CHECK(obj.name == T_L("firstNode"));
+
+    CHECK(obj.attribs.empty() == true);
+    REQUIRE(obj.childs.size() == 1);
+    const auto &secondNode = obj.childs.at(T_L("seCOnDnODe"));
+
+    CHECK(secondNode->name == T_L("SecondNode"));
+    REQUIRE(secondNode->attribs.size() == 1);
+    CHECK(secondNode->childs.empty() == true);
+    CHECK(secondNode->attribs.at(T_L("kEy")) == T_L("Value"));
+}
+
 TEST_CASE_TEMPLATE("read multikey", charT, char, wchar_t)
 {
     std::basic_ifstream<charT> file("DST_Manifest.acf");

@@ -36,7 +36,8 @@ template <> struct Arbitrary<tyti::vdf::wmultikey_object>
                 &obj::attribs,
 
                 rc::gen::container<
-                    std::unordered_multimap<std::wstring, std::wstring>>(
+                    tyti::vdf::detail::case_insensitive_unordered_multimap<
+                        std::wstring, std::wstring>>(
                     gen_name_string<wchar_t>(), gen_name_string<wchar_t>())));
     }
 };

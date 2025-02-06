@@ -166,6 +166,49 @@ std::basic_string<charT> escape(std::basic_string<charT> in)
     return in;
 }
 
+template <typename T> T tolower(const T &str) noexcept
+{
+    T res;
+    for (auto c : str)
+    {
+        if (c >= 'A' && c <= 'Z')
+        {
+            res += c + 32;
+        }
+        else
+        {
+            res += c;
+        }
+    }
+    return res;
+}
+
+template <typename TKey> struct case_insensitive_hash
+{
+    size_t operator()(const TKey &value) const
+    {
+        return std::hash<TKey>()(tolower(value));
+    }
+};
+
+template <typename TKey> struct case_insensitive_equal_to
+{
+    bool operator()(const TKey &lhs, const TKey &rhs) const
+    {
+        return std::equal_to<TKey>()(tolower(lhs), tolower(rhs));
+    }
+};
+
+template <typename TKey, typename TValue>
+using case_insensitive_unordered_map =
+    std::unordered_map<TKey, TValue, case_insensitive_hash<TKey>,
+                       case_insensitive_equal_to<TKey>>;
+
+template <typename TKey, typename TValue>
+using case_insensitive_unordered_multimap =
+    std::unordered_multimap<TKey, TValue, case_insensitive_hash<TKey>,
+                            case_insensitive_equal_to<TKey>>;
+
 } // end namespace detail
 
 ///////////////////////////////////////////////////////////////////////////
@@ -180,11 +223,11 @@ template <typename CharT> struct basic_object
 {
     typedef CharT char_type;
     std::basic_string<char_type> name;
-    std::unordered_map<std::basic_string<char_type>,
-                       std::basic_string<char_type>>
+    detail::case_insensitive_unordered_map<std::basic_string<char_type>,
+                                           std::basic_string<char_type>>
         attribs;
-    std::unordered_map<std::basic_string<char_type>,
-                       std::shared_ptr<basic_object<char_type>>>
+    detail::case_insensitive_unordered_map<
+        std::basic_string<char_type>, std::shared_ptr<basic_object<char_type>>>
         childs;
 
     void add_attribute(std::basic_string<char_type> key,
@@ -204,11 +247,12 @@ template <typename CharT> struct basic_multikey_object
 {
     typedef CharT char_type;
     std::basic_string<char_type> name;
-    std::unordered_multimap<std::basic_string<char_type>,
-                            std::basic_string<char_type>>
+    detail::case_insensitive_unordered_multimap<std::basic_string<char_type>,
+                                                std::basic_string<char_type>>
         attribs;
-    std::unordered_multimap<std::basic_string<char_type>,
-                            std::shared_ptr<basic_multikey_object<char_type>>>
+    detail::case_insensitive_unordered_multimap<
+        std::basic_string<char_type>,
+        std::shared_ptr<basic_multikey_object<char_type>>>
         childs;
 
     void add_attribute(std::basic_string<char_type> key,

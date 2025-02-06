@@ -34,7 +34,8 @@ template <> struct Arbitrary<tyti::vdf::wobject>
                 &obj::attribs,
 
                 rc::gen::container<
-                    std::unordered_map<std::wstring, std::wstring>>(
+                    tyti::vdf::detail::case_insensitive_unordered_map<
+                        std::wstring, std::wstring>>(
                     gen_name_string<wchar_t>(), gen_name_string<wchar_t>())));
     }
 };
