@@ -335,7 +335,8 @@ std::basic_string<typename iStreamT::char_type> read_file(iStreamT &inStream)
     typedef typename iStreamT::char_type charT;
     std::basic_string<charT> str;
     inStream.seekg(0, std::ios::end);
-    str.resize(static_cast<size_t>(inStream.tellg()));
+    if (auto pos = inStream.tellg(); pos != -1)
+        str.resize(static_cast<size_t>(pos));
     if (str.empty())
         return str;
 
